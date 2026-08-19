@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="뽕알의 니뽄여행" />
+<meta name="format-detection" content="telephone=no, address=no, email=no" />
+<title>뽕알의 니뽄여행 🇯🇵 (도쿄 3박 4일 7인팟)</title>
+<!-- Google Fonts & Leaflet CSS -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<style>
+  :root {
+    --bg-dark: #0b0f19;
+    --card-bg: #151c2c;
+    --card-border: #232d42;
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
+    
+    /* Colors */
+    --neon-cyan: #00f2fe;
+    --neon-pink: #ff007f;
+    --neon-yellow: #ffe600;
+    --japan-red: #ff3b30;
+    --accent-green: #10b981;
+    --accent-purple: #a855f7;
+    
+    --radius-lg: 18px;
+    --radius-md: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-text-size-adjust: 100%;
+    overflow-x: hidden;
+  }
+
+  a { color: var(--neon-cyan); text-decoration: none; }
+  a:active { opacity: 0.7; }
+
+  button, label, input, a.btn {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 14px 14px 90px;
+  }
+
+  /* Header Hero Section */
+  header.hero {
+    position: relative;
+    background: linear-gradient(135deg, #1a0b2e 0%, #091a3a 50%, #0d2137 100%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--radius-lg);
+    padding: 22px 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    overflow: hidden;
+  }
+
+  header.hero::before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 180px;
+    height: 180px;
+    background: radial-gradient(circle, rgba(255, 0, 127, 0.25) 0%, rgba(0,0,0,0) 70%);
+    pointer-events: none;
+  }
+
+  .badge-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 0, 127, 0.18);
+    border: 1px solid rgba(255, 0, 127, 0.4);
+    color: var(--neon-pink);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-bottom: 10px;
+  }
+
+  header.hero h1 {
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  header.hero .sub-date {
+    font-size: 13.5px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    font-weight: 500;
+  }
+
+  header.hero .meta-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+    font-size: 12.5px;
+  }
+
+  header.hero .meta-chips span {
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 5px 11px;
+    border-radius: 999px;
+    color: #e2e8f0;
+    font-weight: 500;
+  }
+
+  .quick-links {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #1e293b;
+    border: 1px solid #334155;
+    color: #f1f5f9;
+    padding: 8px 13px;
+    border-radius: 999px;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+  }
+
+  .btn:hover, .btn:active {
+    background: #334155;
+    border-color: #475569;
+  }
+
+  .btn.primary {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    border-color: #3b82f6;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  }
+
+  .btn.neon {
+    background: linear-gradient(135deg, #d97706, #b45309);
+    border-color: #f59e0b;
+    color: #fff;
+  }
+
+  .btn.route {
+    background: linear-gradient(135deg, #b91c1c, #991b1b);
+    border-color: #ef4444;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+  }
+
+  /* Sticky Navigation Bar */
+  nav.days-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(11, 15, 25, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 10px 0;
+    margin: 0 -4px 14px;
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  nav.days-nav::-webkit-scrollbar { display: none; }
+
+  nav.days-nav button {
+    flex: 0 0 auto;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    color: var(--text-muted);
+    padding: 9px 15px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  nav.days-nav button.active {
+    background: #ffffff;
+    color: #0f172a;
+    border-color: #ffffff;
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
+  }
+
+  /* Content Cards & Sections */
+  .tab-content { display: none; }
+  .tab-content.active { display: block; animation: fadeIn 0.25s ease-out; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .card h2 {
+    font-size: 18px;
+    font-weight: 800;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: -0.01em;
+  }
+
+  .pill {
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 700;
+  }
+
+  .pill.cyan { background: rgba(0, 242, 254, 0.15); color: var(--neon-cyan); border: 1px solid rgba(0, 242, 254, 0.3); }
+  .pill.pink { background: rgba(255, 0, 127, 0.15); color: var(--neon-pink); border: 1px solid rgba(255, 0, 127, 0.3); }
+  .pill.yellow { background: rgba(255, 230, 0, 0.15); color: var(--neon-yellow); border: 1px solid rgba(255, 230, 0, 0.3); }
+  .pill.red { background: rgba(255, 59, 48, 0.15); color: var(--japan-red); border: 1px solid rgba(255, 59, 48, 0.3); }
+
+  /* Map Container */
+  .map-box {
+    height: 300px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--card-border);
+    overflow: hidden;
+    margin-top: 8px;
+    z-index: 1;
+  }
+
+  /* Timeline Styling */
+  ul.timeline {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0 0;
+  }
+
+  ul.timeline li {
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    gap: 12px;
+    padding: 12px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+  }
+
+  ul.timeline li:first-child { border-top: 0; }
+
+  ul.timeline .time-tag {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: var(--neon-cyan);
+    font-variant-numeric: tabular-nums;
+    padding-top: 2px;
+  }
+
+  ul.timeline .activity {
+    font-size: 14.5px;
+    color: #f1f5f9;
+  }
+
+  ul.timeline .activity strong {
+    color: #ffffff;
+    font-weight: 700;
+  }
+
+  ul.timeline .activity small {
+    display: block;
+    color: var(--text-muted);
+    font-size: 12.5px;
+    margin-top: 4px;
+    line-height: 1.45;
+  }
+
+  /* Highlight Alert Boxes */
+  .alert-box {
+    background: rgba(255, 59, 48, 0.1);
+    border: 1px solid rgba(255, 59, 48, 0.35);
+    color: #fca5a5;
+    padding: 12px 14px;
+    border-radius: var(--radius-md);
+    font-size: 13.5px;
+    margin: 10px 0;
+  }
+
+  .alert-box strong { color: #ffffff; }
+
+  .tip-box {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    color: #6ee7b7;
+    padding: 12px 14px;
+    border-radius: var(--radius-md);
+    font-size: 13.5px;
+    margin: 10px 0;
+  }
+
+  /* Checklist Component */
+  ul.checklist {
+    list-style: none;
+    padding: 0;
+  }
+
+  ul.checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+  }
+
+  ul.checklist li:first-child { border-top: 0; }
+
+  ul.checklist input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 22px;
+    height: 22px;
+    border: 2px solid #475569;
+    border-radius: 6px;
+    background: #0f172a;
+    cursor: pointer;
+    flex: 0 0 22px;
+    margin-top: 2px;
+    transition: all 0.2s;
+  }
+
+  ul.checklist input[type="checkbox"]:checked {
+    background: var(--accent-green);
+    border-color: var(--accent-green);
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='none' stroke='white' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round' d='M3 8.5l3 3 7-7'/></svg>");
+    background-size: 16px;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+
+  ul.checklist label {
+    flex: 1;
+    font-size: 14.5px;
+    cursor: pointer;
+    color: #e2e8f0;
+  }
+
+  ul.checklist li.checked label {
+    color: var(--text-muted);
+    text-decoration: line-through;
+  }
+
+  /* Details Accordion */
+  details.info-accordion {
+    background: #0f172a;
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    padding: 10px 12px;
+    margin-bottom: 8px;
+  }
+
+  details.info-accordion summary {
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 14px;
+    color: #e2e8f0;
+    outline: none;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  details.info-accordion summary::-webkit-details-marker { display: none; }
+  details.info-accordion[open] summary { margin-bottom: 8px; border-bottom: 1px solid #1e293b; padding-bottom: 6px; }
+
+  footer {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 12px;
+    padding: 24px 0 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    margin-top: 20px;
+  }
+
+  /* Custom Leaflet Dark Popup */
+  .leaflet-popup-content-wrapper {
+    background: #1e293b !important;
+    color: #f8fafc !important;
+    border-radius: 10px !important;
+    border: 1px solid #334155 !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5) !important;
+  }
+  .leaflet-popup-tip { background: #1e293b !important; }
+  .leaflet-popup-content b { color: var(--neon-cyan); font-size: 14px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- HERO HEADER -->
+  <header class="hero">
+    <div class="badge-tag">🔥 7인 전용 도쿄 풀코스 익스프레스</div>
+    <h1>뽕알의 니뽄여행 🇯🇵</h1>
+    <div class="sub-date">📅 2026년 9월 4일 (금) ~ 9월 7일 (월) · 3박 4일</div>
+    
+    <div class="meta-chips">
+      <span>✈️ 티웨이 항공 (ICN T1 ↔ NRT T2/T1)</span>
+      <span>🏠 숙소: 아자부주반 (Azabujūban 7인)</span>
+      <span>🏎️ 도쿄 드리프트 액티비티</span>
+      <span>🥐 긴자 팡메종 & 🍲 신주쿠 쿠누기야</span>
+      <span>🚗 15:00 공항 픽업 서비스</span>
+    </div>
+
+    <div class="quick-links">
+      <a class="btn primary" href="https://maps.google.com/?q=2-chōme-8-16+Azabujūban+Minato+City+Tokyo+106-0045" target="_blank">📍 숙소 위치 (구글맵)</a>
+      <a class="btn neon" href="https://www.vjw.digital.go.jp/" target="_blank">✈️ Visit Japan Web (입국신고)</a>
+    </div>
+  </header>
+
+  <!-- STICKY NAV -->
+  <nav class="days-nav" id="daysNav">
+    <button type="button" class="active" onclick="switchTab('overview')">전체 동선</button>
+    <button type="button" onclick="switchTab('d1')">1일차 (9/4 금)</button>
+    <button type="button" onclick="switchTab('d2')">2일차 (9/5 토)</button>
+    <button type="button" onclick="switchTab('d3')">3일차 (9/6 일)</button>
+    <button type="button" onclick="switchTab('d4')">4일차 (9/7 월)</button>
+    <button type="button" onclick="switchTab('chk')">✅ 체크리스트</button>
+  </nav>
+
+  <!-- TAB 0: OVERVIEW & MAP -->
+  <div id="tab-overview" class="tab-content active">
+    <div class="card">
+      <div class="card-header">
+        <h2>🗾 도쿄 전체 통합 동선 지도</h2>
+        <a class="btn route" id="btn-all-route" href="https://www.google.com/maps/dir/?api=1&origin=35.7720,140.3929&destination=35.7647,140.3863&waypoints=35.6558,139.7366%7C35.6720,139.7712%7C35.6983,139.7731%7C35.6888,139.7112%7C35.6938,139.7003%7C35.6595,139.7005%7C35.6598,139.7300%7C35.6628,139.7314" target="_blank">🗺️ 구글맵 전체 경로 열기</a>
+      </div>
+      <div id="mapAll" class="map-box"></div>
+      <p style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">
+        💡 핀을 터치하면 장소명과 구글지도 바로가기 링크가 열립니다.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>🏠 7인 통합 숙소 정보</h2>
+      <div style="font-size: 14px; margin-top: 8px;">
+        <p><strong>주소:</strong> 2-chōme-8-16 Azabujūban, Minato City, Tokyo 106-0045</p>
+        <p><strong>가까운 전철역:</strong> 도쿄메트로 난보쿠선 / 도에이 오에도선 <strong>아자부주반역 (Azabu-juban Sta.)</strong> 도보 4분</p>
+        <p><strong>주변 편의시설:</strong> 세븐일레븐(도보 1분), 도쿄타워(도보 15분), 롯폰기 힐즈(도보 10분)</p>
+      </div>
+      <div class="quick-links" style="margin-top: 10px;">
+        <a class="btn primary" href="https://maps.google.com/?q=2-chōme-8-16+Azabujūban+Minato+City+Tokyo+106-0045" target="_blank">🗺️ 숙소 구글 길찾기</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📋 한눈에 보는 3박 4일 일정요약</h2>
+      <ul class="timeline">
+        <li>
+          <span class="time-tag">9/4 (금)</span>
+          <div class="activity">
+            <strong>1일차: 출국 ➔ 숙소 체크인 ➔ 긴자 팡메종 ➔ 도쿄타워 ➔ 몬자야키 파티</strong>
+            <small>08:35 티웨이 출국, 긴자 소금빵 팡메종, 도쿄타워 야경 스팟 & 아자부 몬자야키/생맥주 7인 회식</small>
+          </div>
+        </li>
+        <li>
+          <span class="time-tag">9/5 (토)</span>
+          <div class="activity">
+            <strong>2일차: 아키하바라 ➔ 🏎️ 도쿄 드리프트 ➔ 🍲 쿠누기야 ➔ ⚾ 배팅센터 ➔ 신주쿠 골든가이</strong>
+            <small>아키하바라 오락실 내기, 카트 액티비티, 신주쿠 쿠누기야 저녁, 가부키초 야구배팅 내기 & 골든가이 술자리</small>
+          </div>
+        </li>
+        <li>
+          <span class="time-tag">9/6 (일)</span>
+          <div class="activity">
+            <strong>3일차: 하라주쿠 ➔ 🚦 시부야 스크램블 ➔ 🛹 미야시타 파크 ➔ 🌆 롯폰기 케야키자카 ➔ 🐙 긴다코 하이볼</strong>
+            <small>시부야 스크램블, 미야시타 파크 옥상 루프탑, 메가키호테 털기 & 롯폰기 케야키자카 야경 ➔ 긴다코 하이볼 타번</small>
+          </div>
+        </li>
+        <li>
+          <span class="time-tag">9/7 (월)</span>
+          <div class="activity">
+            <strong>4일차: 츠키지 장외시장 와규/카이센동 ➔ 🚗 15:00 공항 픽업 탑승 ➔ ✈️ 19:55 귀국</strong>
+            <small>츠키지 와규 꼬치 먹방, 15:00 아자부주반역 공항 픽업 차량 편하게 탑승 ➔ 19:55 나리타 T1 출발 ➔ 22:25 인천 T2 도착</small>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- TAB 1: DAY 1 -->
+  <div id="tab-d1" class="tab-content">
+    <div class="card">
+      <div class="card-header">
+        <h2>Day 1 · 9월 4일 (금) 동선</h2>
+        <a class="btn route" href="https://www.google.com/maps/dir/?api=1&origin=35.7720,140.3929&destination=35.6586,139.7454&waypoints=35.6558,139.7366%7C35.6720,139.7712&travelmode=transit" target="_blank">🗺️ 구글맵 1일차 동선 열기</a>
+      </div>
+      <div id="mapD1" class="map-box"></div>
+    </div>
+
+    <div class="card">
+      <ul class="timeline">
+        <li>
+          <span class="time-tag">06:30</span>
+          <div class="activity">
+            <strong>인천공항 1터미널 미팅 & 항공권 수속</strong>
+            <small>티웨이 항공 카운터 미팅, 7인 짐 수하물 부치기 & 포켓와이파이/eSIM 점검</small>
+          </div>
+        </li>
+        <li>
+          <span class="time-tag">08:35</span>
+          <div class="activity">
+            <strong>✈️ 인천(ICN T1) 출발 ➔ 나리타(NRT T2) 11:05 도착</strong>
+            <small>티웨이 TW201 편 이용 (비행시간 약 2시간 30분)</small>
+          </div>
+        </li>
+        <li>
+          <span class="time-tag">11:05</span>
+          <div class="activity">
+            <strong>나리타 입국 수속 & 도심 이동 (스카이라이너 / N'EX)</strong>
+            <small>Visit Japan Web QR 제시로 입국 빠른 패스 ➔ 도쿄 도심 진입</small>
+          </div>
+        </li>
+        <li>
+          <span class="time-tag">13:40</span>
+          <div class="activity">
+            <strong>🏠 아자부주반 숙소 도착 & 짐 보관 / 체크인</strong>
+            <small>2-chōme-8-16 Azabujūban 위치 확인 후 가벼운 차림으로 재정비</small>
+          </div>
+        </li>
+        <li>
+          <span class="time-tag">15:00</span>
+          <div class="activity">
+            <strong>🥐 [후보지 1] 팡메종 긴자점 (Pain Maison Ginza)</strong>
+            <small>갓 구운 겉바속촉 원조 소금빵(시오빵) & 갓 구운 시시오빵 폭풍 흡입!</small>
+          </div>
+        </li>
+        <li>
+          <span class="time-tag">16:30</span>
+          <div class="activity">
+            <strong>🛍️ 긴자 명품거리 & 백화점 산책</strong>
+            <small>긴자 식스(GINZA SIX), 긴자 차없는 거리 탐방</small>
+          </div>
+        </li>
+        <li>
+          <span class="time-tag">18:30</span>
+          <div class="activity">
+            <strong>🗼 도쿄 타워 (Tokyo Tower) 야경 & 캔맥주 밤산책</strong>
+            <small>숙소 인근 도쿄 타워 스팟 단체 인생샷 촬영 & 편의점 캔맥주 산책</small>
+          </div>
+        </li>
+        <li>
+          <span class="time-tag">20:30</span>
+          <div class="activity">
+            <strong>🍳 [추천] 아자부주반 몬자야키 & 야키니쿠 7인 파티</strong>
+            <small>도쿄 명물 몬자야키를 철판에 직접 긁어먹으며 생맥주(나마비루) 짠!</small>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- TAB 2: DAY 2 -->
+  <div id="tab-d2" class="tab-content">
+    <div class="card">
+      <div class="card-header">
+        <h2>Day 2 · 9월 5일 (토) 동선</h2>
+        <a class="btn route" href="https://www.google.com/maps/dir/?api=1&origin=35.6558,139.7366&destination=35.6942,139.7042&waypoints=35.6983,139.7731%7C35.7005,139.7745%7C35.6888,139.7112%7C35.6938,139.7003&travelmode=transit" target="_blank">🗺️ 구글맵 2일차 동선 열기</a>
+      </div>
+      <div id="mapD2" class="map-box"></div>
+    </div>
+
+    <div class="card">
+      <div class="alert-box">
+        <strong>🚨 도쿄 드리프트 카트 필수 준비물!</strong><br />
+        운전자는 반드시 <strong>국제운전면허증(영문)+한국 운전면허증+여권 Original</strong>을 지참해야 도로 카트 탑승이 가능합니다!
+      </div>
+
+      <ul class="timeline">
+        <li>
+          <span class="time-tag">09:30</span>
+          <div class="activity">
+            <strong>아자부주반 출발 ➔ 아키하바라 이동</strong>
+            <small>도에이 오에도선 / 도쿄메트로 이용 (약 20분 소요)</small>
+          </div>
+        </li>
+        <li>
+          <span class="time-tag">10:30</span>
+          <div class="activity">
+            <strong>🕹️ [후보지 3] 아키하바라 (Akihabara) 오락실 내기 & 피규어 탐방</strong>
+            <small>GiGO 8층 오락실에서 7인 철권/스트리트파이터/마리오카트 밥값 내기 대결!</small>
+          </div>
+        </li>
+        <li>
+          <span class="time-tag">12:30</span>
+          <div class="activity">
+            <strong>🍜 아키하바라 명물 라멘 / 츠케멘 점심</strong>
+            <small>키와미야 츠케멘 or 큐슈 장가라 라멘 등 남자 7인 파워 보충</small>
+          </div>
+        </li>
+        <li>
+          <span class="time-tag">14:00</span>
+          <div class="activity">
+            <strong>🏎️ [후보지 4] 도쿄 드리프트 (스트리트 카트) 액티비티!</strong>
+            <small>코스튬 의상 입고 도쿄 시내 도로를 달리는 카트 액티비티 7인 폭풍 레이싱!</small>
+          </div>
+        </li>
+        <li>
+          <span class="time-tag">17:30</span>
+          <div class="activity">
+            <strong>🚃 아키하바라 출발 ➔ 신주쿠 1초메 이동</strong>
+            <small>신주쿠 1초메 / 신주쿠교엔마에역으로 이동</small>
+          </div>
+        </li>
+        <li>
+          <span class="time-tag">18:00</span>
+          <div class="activity">
+            <strong>🍲 [추가 명소] 쿠누기야 (Kunugiya - 신주쿠 1초메) 저녁식사</strong>
+            <small><a href="https://maps.app.goo.gl/36651ca3-40fc-43e2-a741-c62ca0ad6f93" target="_blank" style="color:var(--neon-cyan); text-decoration:underline;">쿠누기야 (1 Chome-7-2 Shinjuku)</a> 7인 1차 든든한 저녁 맛집!</small>
+          </div>
+        </li>
+        <li>
+          <span class="time-tag">19:30</span>
+          <div class="activity">
+            <strong>🍶 [후보지 5] 신주쿠 오모이데 요코초 (추억의 꼬치골목)</strong>
+            <small>붉은 등불 아래 닭꼬치(토리키조쿠/야키토리) & 하이볼 7인 2차 회식</small>
+          </div>
+        </li>
+        <li>
+          <span class="time-tag">21:00</span>
+          <div class="activity">
+            <strong>⚾ [추천] 가부키초 24시 야구 배팅 센터 내기 & 도쿄도청 야경</strong>
+            <small>술기운에 즐기는 야구 타격 내기 대결! ➔ 45층 도쿄도청 무료 야경 감상</small>
+          </div>
+        </li>
+        <li>
+          <span class="time-tag">22:30</span>
+          <div class="activity">
+            <strong>🌃 신주쿠 골든가이 3차 감성 바 파티</strong>
+            <small>골목골목 감성 넘치는 골든가이 소형 바에서 2일차 마지막 한잔</small>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- TAB 3: DAY 3 -->
+  <div id="tab-d3" class="tab-content">
+    <div class="card">
+      <div class="card-header">
+        <h2>Day 3 · 9월 6일 (일) 동선</h2>
+        <a class="btn route" href="https://www.google.com/maps/dir/?api=1&origin=35.6558,139.7366&destination=35.6628,139.7314&waypoints=35.6702,139.7027%7C35.6595,139.7005%7C35.6617,139.7022%7C35.6608,139.6985%7C35.6598,139.7300&travelmode=transit" target="_blank">🗺️ 구글맵 3일차 동선 열기</a>
+      </div>
+      <div id="mapD3" class="map-box"></div>
+    </div>
+
+    <div class="card">
+      <ul class="timeline">
+        <li>
+          <span class="time-tag">10:30</span>
+          <div class="activity">
+            <strong>하라주쿠 캣스트리트 & 메이지 신궁 산책</strong>
+            <small>고즈넉한 숲길 산책 후 스트릿 브랜드 쇼핑 탐방</small>
+          </div>
+        </li>
+        <li>
+          <span class="time-tag">12:30</span>
+          <div class="activity">
+            <strong>🥩 하라주쿠 / 시부야 규카츠 점심</strong>
+            <small>모토무라 규카츠 or 햄버거 스테이크 맛집 7인 점심</small>
+          </div>
+        </li>
+        <li>
+          <span class="time-tag">14:00</span>
+          <div class="activity">
+            <strong>🚦 [후보지 2] 시부야 스크램블 교차로 (Shibuya Crossing)</strong>
+            <small>세계에서 가장 붐비는 횡단보도 7인 단체 인생샷 촬영!</small>
+          </div>
+        </li>
+        <li>
+          <span class="time-tag">15:30</span>
+          <div class="activity">
+            <strong>🛹 [추천] 시부야 미야시타 파크 (MIYASHITA PARK) 옥상 루프탑</strong>
+            <small>힙한 복합몰 옥상 공원 & 루프탑 라운지 바에서 맥주 한잔의 여유</small>
+          </div>
+        </li>
+        <li>
+          <span class="time-tag">17:30</span>
+          <div class="activity">
+            <strong>🐧 메가키호테 시부야점 (돈키호테 싹쓸이 쇼핑)</strong>
+            <small>7인 선물, 의약품, 위스키(산토리/야마자키), 과자 면세 폭풍 쇼핑</small>
+          </div>
+        </li>
+        <li>
+          <span class="time-tag">20:00</span>
+          <div class="activity">
+            <strong>🌆 [추가 명소] 롯폰기 케야키자카 거리 야경 & 츠타야 서점</strong>
+            <small><a href="https://maps.google.com/?q=Roppongi+Keyakizaka+Street" target="_blank" style="color:var(--neon-cyan); text-decoration:underline;">케야키자카 거리 (Keyakizaka Street)</a> 도쿄타워 뷰 야경 포토존 단체 촬영 & 츠타야 서점 탐방</small>
+          </div>
+        </li>
+        <li>
+          <span class="time-tag">21:30</span>
+          <div class="activity">
+            <strong>🐙 [추가 명소] 롯폰기 긴다코 하이볼 타번 (Gindaco Highball Tavern)</strong>
+            <small><a href="https://maps.google.com/?q=Gindaco+Highball+Tavern+Roppongi" target="_blank" style="color:var(--neon-cyan); text-decoration:underline;">긴다코 하이볼 타번 롯폰기점</a> 갓 구운 겉바속촉 타코야키 & 가쿠 하이볼 7인 맥주 짠!</small>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- TAB 4: DAY 4 -->
+  <div id="tab-d4" class="tab-content">
+    <div class="card">
+      <div class="card-header">
+        <h2>Day 4 · 9월 7일 (월) 동선</h2>
+        <a class="btn route" href="https://www.google.com/maps/dir/?api=1&origin=35.6558,139.7366&destination=35.7647,140.3863&waypoints=35.6654,139.7707%7C35.6565,139.7355&travelmode=driving" target="_blank">🗺️ 구글맵 4일차 동선 열기</a>
+      </div>
+      <div id="mapD4" class="map-box"></div>
+    </div>
+
+    <div class="card">
+      <div class="tip-box">
+        <strong>⚠️ 귀국 항공편 및 픽업 서비스 안내!</strong><br />
+        - 픽업 시간: <strong>15:00 아자부주반역 앞 탑승</strong> (나리타 T1 편안하게 이동)<br />
+        - 귀국 항공편: <strong>19:55 나리타(NRT T1) 출발 ➔ 22:25 인천(ICN T2) 도착</strong> (티웨이 TW202)
+      </div>
+
+      <ul class="timeline">
+        <li>
+          <span class="time-tag">09:00</span>
+          <div class="activity">
+            <strong>숙소 체크아웃 준비 & 짐 정리</strong>
+            <small>아자부주반 숙소 짐 정리 및 가벼운 복장으로 출발</small>
+          </div>
+        </li>
+        <li>
+          <span class="time-tag">09:30</span>
+          <div class="activity">
+            <strong>🍣 [추천] 츠키지 장외시장 A5 와규 꼬치 & 아침 생맥주 브런치</strong>
+            <small>계란말이(야마초), 카이센동, 숯불 직화 A5 와규 꼬치 & 나마비루 아침 먹방!</small>
+          </div>
+        </li>
+        <li>
+          <span class="time-tag">12:30</span>
+          <div class="activity">
+            <strong>☕ 아자부주반 감성 카페 디저트 & 여유로운 선물 쇼핑</strong>
+            <small>아자부 쥬반 명물 달콤한 만쥬 & 커피 한잔 후 짐 챙겨서 미팅 장소로 이동</small>
+          </div>
+        </li>
+        <li>
+          <span class="time-tag">14:45</span>
+          <div class="activity">
+            <strong>🧳 아자부주반역 픽업 장소 집결</strong>
+            <small>7인 수하물 짐 확인 및 픽업 기사님 미팅 준비</small>
+          </div>
+        </li>
+        <li>
+          <span class="time-tag">15:00</span>
+          <div class="activity">
+            <strong>🚗 [변경] 아자부주반역 7인 공항 픽업 서비스 차량 탑승!</strong>
+            <small>전철 갈아탈 필요 없이 픽업 밴 타고 편안하게 나리타 공항 1터미널로 직행 (약 1시간 15분 소요)</small>
+          </div>
+        </li>
+        <li>
+          <span class="time-tag">16:30</span>
+          <div class="activity">
+            <strong>🏢 나리타 공항 1터미널(NRT T1) 도착 & 탑승 수속</strong>
+            <small>티웨이 항공 카운터 7인 짐 수하물 위탁 & 항공권 발권</small>
+          </div>
+        </li>
+        <li>
+          <span class="time-tag">17:30</span>
+          <div class="activity">
+            <strong>🍶 [추천] 나리타 T1 면세점 닷사이 23 (Dassai 23) 사케 쇼핑</strong>
+            <small>여유로운 시간! 최고급 사케 닷사이 23을 한국 가격의 1/3 가격으로 득템!</small>
+          </div>
+        </li>
+        <li>
+          <span class="time-tag">19:55</span>
+          <div class="activity">
+            <strong>✈️ [변경] 나리타(NRT T1) 출발 ➔ 인천(ICN T2) 22:25 도착</strong>
+            <small>티웨이 TW202 편으로 귀국 (비행시간 2시간 30분)</small>
+          </div>
+        </li>
+        <li>
+          <span class="time-tag">22:25</span>
+          <div class="activity">
+            <strong>🛬 인천공항 2터미널 도착 & 뽕알의 도쿄 여행 무사 종료!</strong>
+            <small>수하물 찾고 무사히 집으로!</small>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- TAB 5: CHECKLIST -->
+  <div id="tab-chk" class="tab-content">
+    <div class="card">
+      <div class="card-header">
+        <h2>✅ 도쿄 여행 준비물 체크리스트</h2>
+        <span class="pill cyan">자동 저장</span>
+      </div>
+
+      <details class="info-accordion" open>
+        <summary>📄 필수 서류 & 티켓</summary>
+        <ul class="checklist" style="margin-top:8px;">
+          <li><input type="checkbox" id="chk1" onchange="toggleCheck(this)" /><label for="chk1">여권 (만료일 6개월 이상 남음)</label></li>
+          <li><input type="checkbox" id="chk2" onchange="toggleCheck(this)" /><label for="chk2">Visit Japan Web QR 코드 사전 등록</label></li>
+          <li><input type="checkbox" id="chk3" onchange="toggleCheck(this)" /><label for="chk3"><strong>국제운전면허증 + 한국 면허증 (도쿄 드리프트 카트용)</strong></label></li>
+          <li><input type="checkbox" id="chk4" onchange="toggleCheck(this)" /><label for="chk4">티웨이 항공권 E-티켓 캡처 / 출력</label></li>
+          <li><input type="checkbox" id="chk5" onchange="toggleCheck(this)" /><label for="chk5">공항 픽업 서비스 예약 바우처 & 카트 예약 확인서</label></li>
+        </ul>
+      </details>
+
+      <details class="info-accordion" open>
+        <summary>💴 결제 & 엔화 환전</summary>
+        <ul class="checklist" style="margin-top:8px;">
+          <li><input type="checkbox" id="chk6" onchange="toggleCheck(this)" /><label for="chk6">엔화 현금 (소규모 이자카야/길거리 음식용)</label></li>
+          <li><input type="checkbox" id="chk7" onchange="toggleCheck(this)" /><label for="chk7">트래블로그 / 트래블월렛 체크카드</label></li>
+          <li><input type="checkbox" id="chk8" onchange="toggleCheck(this)" /><label for="chk8">아이폰 애플월렛 수이카(Suica) 또는 파스모 실물 카드</label></li>
+        </ul>
+      </details>
+
+      <details class="info-accordion" open>
+        <summary>🔌 전자기기 & 소지품</summary>
+        <ul class="checklist" style="margin-top:8px;">
+          <li><input type="checkbox" id="chk9" onchange="toggleCheck(this)" /><label for="chk9">110V 일본 돼지코 어댑터 (인당 1~2개)</label></li>
+          <li><input type="checkbox" id="chk10" onchange="toggleCheck(this)" /><label for="chk10">대용량 보조배터리 (기내 수하물 지참!)</label></li>
+          <li><input type="checkbox" id="chk11" onchange="toggleCheck(this)" /><label for="chk11">포켓와이파이 또는 일본 eSIM 사전 등록</label></li>
+          <li><input type="checkbox" id="chk12" onchange="toggleCheck(this)" /><label for="chk12">오래 걸어도 편한 운동화 & 선글라스</label></li>
+        </ul>
+      </details>
+    </div>
+  </div>
+
+  <footer>
+    <p>뽕알의 니뽄여행 🇯🇵 · 2026.09.04 - 09.07</p>
+    <p style="margin-top: 4px; opacity: 0.6;">Designed for 7 Travelers in Tokyo</p>
+  </footer>
+
+</div>
+
+<!-- Leaflet JS Map Script -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  // All Location Pins Data
+  const PINS = {
+    nrt2: { ll: [35.7720, 140.3929], name: "✈️ 나리타공항 2터미널", color: "#64748b" },
+    nrt1: { ll: [35.7647, 140.3863], name: "✈️ 나리타공항 1터미널", color: "#64748b" },
+    home: { ll: [35.6558, 139.7366], name: "🏠 7인 숙소 (아자부주반)", color: "#ff007f" },
+    ginza: { ll: [35.6720, 139.7712], name: "🥐 팡메종 긴자점 (소금빵)", color: "#ffe600" },
+    tower: { ll: [35.6586, 139.7454], name: "🗼 도쿄 타워", color: "#ff3b30" },
+    akiba: { ll: [35.6983, 139.7731], name: "🕹️ 아키하바라 (오락실/피규어)", color: "#00f2fe" },
+    kart:  { ll: [35.7005, 139.7745], name: "🏎️ 도쿄 드리프트 카트", color: "#10b981" },
+    kunugiya: { ll: [35.6888, 139.7112], name: "🍲 쿠누기야 (Kunugiya)", color: "#ffe600" },
+    shinjuku: { ll: [35.6938, 139.7003], name: "🍶 신주쿠 오모이데 요코초", color: "#a855f7" },
+    batting: { ll: [35.6955, 139.7025], name: "⚾ 가부키초 야구 배팅센터", color: "#00f2fe" },
+    golden: { ll: [35.6942, 139.7042], name: "🍸 신주쿠 골든가이", color: "#a855f7" },
+    harajuku: { ll: [35.6702, 139.7027], name: "🌳 하라주쿠 / 메이지신궁", color: "#10b981" },
+    shibuya: { ll: [35.6595, 139.7005], name: "🚦 시부야 스크램블 교차로", color: "#00f2fe" },
+    miyashita: { ll: [35.6617, 139.7022], name: "🛹 시부야 미야시타 파크 루프탑", color: "#10b981" },
+    donki: { ll: [35.6608, 139.6985], name: "🐧 메가키호테 시부야점", color: "#ffe600" },
+    keyakizaka: { ll: [35.6598, 139.7300], name: "🌆 롯폰기 케야키자카 야경 & 츠타야", color: "#ff007f" },
+    gindaco: { ll: [35.6628, 139.7314], name: "🐙 롯폰기 긴다코 하이볼 타번", color: "#ff007f" },
+    tsukiji: { ll: [35.6654, 139.7707], name: "🍣 츠키지 장외시장 (와규꼬치)", color: "#ffe600" },
+    cafe: { ll: [35.6565, 139.7355], name: "☕ 아자부주반 카페", color: "#00f2fe" }
+  };
+
+  const mapInstances = {};
+
+  function initSingleMap(elementId, center, zoom, pinKeys, routeKeys, polylineColor = '#00f2fe') {
+    const el = document.getElementById(elementId);
+    if (!el || mapInstances[elementId]) return;
+
+    const map = L.map(el, { scrollWheelZoom: false }).setView(center, zoom);
+    
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap &copy; CARTO'
+    }).addTo(map);
+
+    const latLngs = [];
+
+    pinKeys.forEach(k => {
+      const p = PINS[k];
+      if (!p) return;
+      const marker = L.circleMarker(p.ll, {
+        radius: 8,
+        fillColor: p.color,
+        color: '#ffffff',
+        weight: 2,
+        opacity: 1,
+        fillOpacity: 0.95
+      }).addTo(map);
+
+      const gmapUrl = `https://www.google.com/maps/search/?api=1&query=${p.ll[0]},${p.ll[1]}`;
+      marker.bindPopup(`<b>${p.name}</b><br/><a href="${gmapUrl}" target="_blank" style="color:#00f2fe; text-decoration:underline;">구글 지도에서 보기 ↗</a>`);
+    });
+
+    if (routeKeys && routeKeys.length > 1) {
+      routeKeys.forEach(k => {
+        if (PINS[k]) latLngs.push(PINS[k].ll);
+      });
+      L.polyline(latLngs, {
+        color: polylineColor,
+        weight: 4,
+        opacity: 0.8,
+        dashArray: '6, 8'
+      }).addTo(map);
+      
+      const bounds = L.latLngBounds(latLngs);
+      map.fitBounds(bounds, { padding: [30, 30] });
+    }
+
+    mapInstances[elementId] = map;
+  }
+
+  // Tab Switcher
+  function switchTab(tabId) {
+    const tabs = document.querySelectorAll('.tab-content');
+    const buttons = document.querySelectorAll('nav.days-nav button');
+
+    tabs.forEach(tab => tab.classList.remove('active'));
+    buttons.forEach(btn => btn.classList.remove('active'));
+
+    const targetTab = document.getElementById('tab-' + tabId);
+    if (targetTab) {
+      targetTab.classList.add('active');
+    }
+
+    const btnIndexMap = { 'overview': 0, 'd1': 1, 'd2': 2, 'd3': 3, 'd4': 4, 'chk': 5 };
+    if (btnIndexMap[tabId] !== undefined && buttons[btnIndexMap[tabId]]) {
+      buttons[btnIndexMap[tabId]].classList.add('active');
+    }
+
+    // Lazy initialization & resize trigger for maps
+    setTimeout(() => {
+      if (tabId === 'overview') {
+        initSingleMap('mapAll', [35.6650, 139.7350], 12, ['home','ginza','tower','akiba','kart','kunugiya','batting','shinjuku','shibuya','miyashita','keyakizaka','gindaco','tsukiji'], ['nrt2','home','ginza','tower','akiba','kart','kunugiya','batting','shinjuku','shibuya','miyashita','keyakizaka','gindaco','tsukiji','nrt1'], '#ff007f');
+      } else if (tabId === 'd1') {
+        initSingleMap('mapD1', [35.6650, 139.7500], 13, ['nrt2','home','ginza','tower'], ['nrt2','home','ginza','tower'], '#00f2fe');
+      } else if (tabId === 'd2') {
+        initSingleMap('mapD2', [35.6800, 139.7400], 13, ['home','akiba','kart','kunugiya','shinjuku','batting','golden'], ['home','akiba','kart','kunugiya','shinjuku','batting','golden','home'], '#ff3b30');
+      } else if (tabId === 'd3') {
+        initSingleMap('mapD3', [35.6650, 139.7150], 13, ['home','harajuku','shibuya','miyashita','donki','keyakizaka','gindaco'], ['home','harajuku','shibuya','miyashita','donki','keyakizaka','gindaco','home'], '#ffe600');
+      } else if (tabId === 'd4') {
+        initSingleMap('mapD4', [35.6600, 139.7500], 12, ['home','tsukiji','cafe','nrt1'], ['home','tsukiji','cafe','nrt1'], '#10b981');
+      }
+
+      if (mapInstances['map' + (tabId.toUpperCase())]) {
+        mapInstances['map' + (tabId.toUpperCase())].invalidateSize();
+      }
+      if (tabId === 'overview' && mapInstances['mapAll']) {
+        mapInstances['mapAll'].invalidateSize();
+      }
+    }, 150);
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Checklist LocalStorage persistence
+  function toggleCheck(el) {
+    const parentLi = el.closest('li');
+    if (el.checked) {
+      parentLi.classList.add('checked');
+    } else {
+      parentLi.classList.remove('checked');
+    }
+    localStorage.setItem('tokyo_chk_' + el.id, el.checked);
+  }
+
+  function loadChecklistState() {
+    const checkboxes = document.querySelectorAll('ul.checklist input[type="checkbox"]');
+    checkboxes.forEach(chk => {
+      const saved = localStorage.getItem('tokyo_chk_' + chk.id);
+      if (saved === 'true') {
+        chk.checked = true;
+        chk.closest('li').classList.add('checked');
+      }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    switchTab('overview');
+    loadChecklistState();
+  });
+</script>
+</body>
+</html>
